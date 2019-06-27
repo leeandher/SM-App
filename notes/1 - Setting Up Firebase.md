@@ -1,0 +1,5 @@
+- create a firebase app
+- setup functions online
+- setup database online
+- use docs to create accessible functions
+- test them in postman

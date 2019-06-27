@@ -22,6 +22,9 @@ exports.getWaves = functions.https.onRequest((req, res) => {
 });
 
 exports.createWave = functions.https.onRequest((req, res) => {
+  if (req.method !== "POST") {
+    return res.status(400).json({ error: `${req.method} Method not allowed` });
+  }
   const newWave = {
     body: req.body.body,
     userHandle: req.body.userHandle,
