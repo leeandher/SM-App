@@ -2,38 +2,48 @@ const firebase = require("firebase");
 const admin = require("firebase-admin");
 const db = admin.firestore();
 
-exports.getWaves = async (req, res) => {
-  db.collection("waves")
-    .orderBy("createdAt", "desc")
-    .get()
-    .then(data => {
-      const waves = [];
-      data.forEach(doc =>
-        waves.push({
-          id: doc.id,
-          body: doc.data().body,
-          handle: doc.data().handle,
-          createdAt: doc.data().createdAt
-        })
-      );
-      return res.json(waves);
-    })
-    .catch(console.error);
-};
+const { catchErrors } = require("../utils");
 
-exports.createWave = async (req, res) => {
-  const newWave = {
-    body: req.body.body,
-    handle: req.body.handle,
-    createdAt: new Date().toISOString()
-  };
-  db.collection("waves")
-    .add(newWave)
-    .then(({ id }) =>
-      res.json({ message: `Wave (ID: ${id}) was successfully created.` })
-    )
-    .catch(err => {
-      res.status(500).json({ error: "Could not create new wave." });
-      console.error(err);
-    });
-};
+exports.getWaves = catchErrors(
+  async (req, res) => {
+    const waves = [];
+    const data = await db
+      .collection("waves")
+      .orderBy("createdAt", "desssc")
+      .get();
+    data.forEach(doc =>
+      waves.push({
+        id: doc.id,
+        body: doc.data().body,
+        handle: doc.data().handle,
+        createdAt: doc.data().createdAt
+      })
+    );
+    return res.json(waves);
+  },
+  (err, req, res) => {
+    console.error(err);
+    return res.status(500).json({ error: "Could not create get waves." });
+  }
+);
+
+exports.createWave = catchErrors(
+  async (req, res) => {
+    const newWave = {
+      body: req.body.body,
+      handle: req.body.handle,
+      createdAt: new Date().toISOString()
+    };
+    const { id } = db.collection("waves").add(newWave);
+    res
+      .json({ message: `Wave (ID: ${id}) was successfully created.` })
+      .catch(err => {
+        res.status(500).json({ error: "Could not create new wave." });
+        console.error(err);
+      });
+  },
+  (err, req, res) => {
+    console.error(err);
+    return res.status(500).json({ error: "Could not create new wave." });
+  }
+);
