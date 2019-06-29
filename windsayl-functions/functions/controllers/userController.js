@@ -2,7 +2,8 @@ const firebase = require("firebase");
 const admin = require("firebase-admin");
 const db = admin.firestore();
 
-const { catchErrors, isEmpty, isEmail } = require("../utils");
+const { isEmpty, isEmail } = require("../helpers");
+const { catchErrors } = require("../utils");
 
 exports.signUp = catchErrors(
   async (req, res) => {
