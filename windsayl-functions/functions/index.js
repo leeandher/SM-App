@@ -19,5 +19,6 @@ const userController = require("./controllers/userController");
 app.get("/waves", waveController.getWaves);
 app.post("/waves", waveController.createWave);
 app.post("/signup", userController.signUp);
+app.post("/login", userController.login);
 
 exports.api = functions.https.onRequest(app);
