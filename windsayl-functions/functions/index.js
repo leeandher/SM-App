@@ -1,5 +1,6 @@
 const app = require("express")();
 
+// Initialize the Firebase App
 const firebase = require("firebase");
 const firebaseConfig = require("./etc/firebaseConfig.json");
 firebase.initializeApp(firebaseConfig);
@@ -17,6 +18,7 @@ const authController = require("./controllers/authController");
 const waveController = require("./controllers/waveController");
 const userController = require("./controllers/userController");
 
+// Routing
 app.get("/wave", waveController.getWaves);
 app.post("/wave", authController.verifyToken, waveController.createWave);
 app.post("/signup", userController.signUp);
