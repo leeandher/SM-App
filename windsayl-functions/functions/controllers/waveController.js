@@ -9,7 +9,7 @@ exports.getWaves = catchErrors(
     const waves = [];
     const data = await db
       .collection("waves")
-      .orderBy("createdAt", "desssc")
+      .orderBy("createdAt", "desc")
       .get();
     data.forEach(doc =>
       waves.push({
@@ -23,7 +23,7 @@ exports.getWaves = catchErrors(
   },
   (err, req, res) => {
     console.error(err);
-    return res.status(500).json({ error: "Could not create get waves." });
+    return res.status(500).json({ error: "Could not get waves." });
   }
 );
 
@@ -31,16 +31,11 @@ exports.createWave = catchErrors(
   async (req, res) => {
     const newWave = {
       body: req.body.body,
-      handle: req.body.handle,
+      handle: req.user.handle,
       createdAt: new Date().toISOString()
     };
-    const { id } = db.collection("waves").add(newWave);
-    res
-      .json({ message: `Wave (ID: ${id}) was successfully created.` })
-      .catch(err => {
-        res.status(500).json({ error: "Could not create new wave." });
-        console.error(err);
-      });
+    const { id } = await db.collection("waves").add(newWave);
+    res.json({ message: `Wave (ID: ${id}) was successfully created.` });
   },
   (err, req, res) => {
     console.error(err);

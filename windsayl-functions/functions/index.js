@@ -13,11 +13,12 @@ admin.initializeApp({
 
 const functions = require("firebase-functions");
 
+const authController = require("./controllers/authController");
 const waveController = require("./controllers/waveController");
 const userController = require("./controllers/userController");
 
-app.get("/waves", waveController.getWaves);
-app.post("/waves", waveController.createWave);
+app.get("/wave", waveController.getWaves);
+app.post("/wave", authController.verifyToken, waveController.createWave);
 app.post("/signup", userController.signUp);
 app.post("/login", userController.login);
 
