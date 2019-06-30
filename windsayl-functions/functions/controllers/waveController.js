@@ -23,7 +23,7 @@ exports.getWaves = catchErrors(
   },
   (err, req, res) => {
     console.error(err);
-    return res.status(500).json({ error: "Could not get waves." });
+    return res.status(500).json({ error: "Could not get waves" });
   }
 );
 
@@ -35,10 +35,10 @@ exports.createWave = catchErrors(
       createdAt: new Date().toISOString()
     };
     const { id } = await db.collection("waves").add(newWave);
-    res.json({ message: `Wave (ID: ${id}) was successfully created.` });
+    res.json({ message: `Wave (ID: ${id}) was successfully created` });
   },
   (err, req, res) => {
     console.error(err);
-    return res.status(500).json({ error: "Could not create new wave." });
+    return res.status(500).json({ error: "Could not create new wave" });
   }
 );

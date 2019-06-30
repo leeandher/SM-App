@@ -7,6 +7,6 @@ exports.catchErrors = (asyncFunction, errorHandler) => {
   return function(req, res, next) {
     return asyncFunction(req, res, next).catch(error =>
       errorHandler(error, req, res, next)
-    );
-  };
-};
+    )
+  }
+}
