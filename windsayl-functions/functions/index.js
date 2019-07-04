@@ -19,10 +19,21 @@ const waveController = require('./controllers/waveController')
 const userController = require('./controllers/userController')
 
 // Routing
+
 app.get('/wave', waveController.getWaves)
+app.post('/wave/:waveId', waveController.getWave)
 app.post('/wave', authController.verifyToken, waveController.createWave)
+
+// TODO: Delete wave
+// TODO: Splash a wave (like)
+// TODO: Unsplash a wave (unlike)
+// TODO: Comment on a wave (comment)
+// TODO: Ripple a wave (retweet) - SELF MADE
+
 app.post('/signup', userController.signUp)
 app.post('/login', userController.login)
+app.get('/user/data', authController.verifyToken, userController.getData)
 app.post('/user/image', authController.verifyToken, userController.uploadImage)
+app.post('/user/edit', authController.verifyToken, userController.editUser)
 
 exports.api = functions.https.onRequest(app)

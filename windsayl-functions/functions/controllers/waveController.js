@@ -27,6 +27,16 @@ exports.getWaves = catchErrors(
   }
 )
 
+exports.getWave = catchErrors(
+  async (req, res) => {
+    return res.json({ message: 'woot' })
+  },
+  (err, req, res) => {
+    console.error(err)
+    return res.status(500).json({ error: 'Could not get wave' })
+  }
+)
+
 exports.createWave = catchErrors(
   async (req, res) => {
     const newWave = {

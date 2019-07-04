@@ -20,3 +20,14 @@ exports.isEmail = string => {
 exports.isImage = mimetype => {
   return mimetype.startsWith('image/')
 }
+
+exports.cleanUserData = ({ bio, website, location }) => {
+  const userData = {}
+  if (!this.isEmpty(bio.trim())) userData.bio = bio
+  if (!this.isEmpty(website.trim())) {
+    userData.website =
+      website.trim().substring(0, 4) === 'http' ? website : `http://${website}`
+  }
+  if (!this.isEmpty(location.trim())) userData.location = location
+  return userData
+}

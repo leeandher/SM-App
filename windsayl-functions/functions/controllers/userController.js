@@ -9,7 +9,7 @@ const admin = require('firebase-admin')
 const db = admin.firestore()
 
 const firebaseConfig = require('../etc/firebaseConfig.json')
-const { isEmpty, isEmail } = require('../util/validators')
+const { isEmpty, isEmail, cleanUserData } = require('../util/validators')
 const { catchErrors } = require('../util/errors')
 
 exports.signUp = catchErrors(
@@ -112,10 +112,51 @@ exports.login = catchErrors(
       })
     }
     console.error(err)
-    return res.status(500).json({ error: `(${err.code}) Could not login` })
+    return res
+      .status(500)
+      .json({ error: `(${err.code || '❌'}) Could not login` })
   }
 )
 
+exports.editUser = catchErrors(
+  async (req, res) => {
+    let userData = cleanUserData(req.body)
+    await db.doc(`/users/${req.user.handle}`).update(userData)
+    return res.json({ message: 'Details have been edited' })
+  },
+  (err, req, res) => {
+    console.error(err)
+    return res
+      .status(500)
+      .json({ error: `(${err.code || '❌'}) Could not edit user` })
+  }
+)
+
+exports.getData = catchErrors(
+  async (req, res) => {
+    const doc = await db.doc(`/users/${req.user.handle}`).get()
+    if (!doc.exists) throw new Error('User does not exist!')
+    const credentials = doc.data()
+    const likeDocs = await db
+      .collection('likes')
+      .where('userHandle', '==', req.user.handle)
+      .get()
+    const likes = []
+    likeDocs.forEach(doc => likes.push(doc.data()))
+    return res.json({
+      credentials,
+      likes
+    })
+  },
+  (err, req, res) => {
+    console.error(err)
+    return res
+      .status(500)
+      .json({ error: `(${err.code || '❌'}) Could not get user info` })
+  }
+)
+
+// TODO: Repair
 exports.uploadImage = catchErrors(
   (req, res) => {
     const busboy = new Busboy({ headers: req.headers })
