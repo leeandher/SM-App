@@ -22,12 +22,16 @@ const userController = require('./controllers/userController')
 
 app.get('/wave', waveController.getWaves)
 app.get('/wave/:waveId', waveController.getWave)
+app.post(
+  '/wave/:waveId/comment',
+  authController.verifyToken,
+  waveController.createComment
+)
 app.post('/wave', authController.verifyToken, waveController.createWave)
 
 // TODO: Delete wave
 // TODO: Splash a wave (like)
 // TODO: Unsplash a wave (unlike)
-// TODO: Comment on a wave (comment)
 // TODO: Ripple a wave (retweet) - SELF MADE
 
 app.post('/signup', userController.signUp)

@@ -21,13 +21,14 @@ exports.verifyToken = catchErrors(
     req.user = decodedToken
 
     const {
-      docs: [item]
+      docs: [user]
     } = await db
       .collection('users')
       .where('userId', '==', req.user.uid)
       .limit(1)
       .get()
-    req.user.handle = item.data().handle
+    req.user.handle = user.data().handle
+    req.user.displayPicture = user.data().displayPicture
     return next()
   },
   (err, req, res) => {

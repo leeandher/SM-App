@@ -2,6 +2,7 @@ const firebase = require('firebase')
 const admin = require('firebase-admin')
 const db = admin.firestore()
 
+const { isEmpty } = require('../util/validators')
 const { catchErrors } = require('../util/errors')
 
 exports.getWaves = catchErrors(
@@ -32,8 +33,8 @@ exports.getWaves = catchErrors(
 exports.getWave = catchErrors(
   async (req, res) => {
     const { waveId } = req.params
-    const doc = await db.doc(`/waves/${waveId}`).get()
-    if (!doc.exists) {
+    const waveDoc = await db.doc(`/waves/${waveId}`).get()
+    if (!waveDoc.exists) {
       return res.status(404).json({ error: `Wave ${waveId} not found.` })
     }
     const waveData = doc.data()
@@ -70,5 +71,33 @@ exports.createWave = catchErrors(
     return res
       .status(500)
       .json({ error: `(${err.code || '❌'}) Could not create new wave` })
+  }
+)
+
+exports.createComment = catchErrors(
+  async (req, res) => {
+    if (isEmpty(req.body.body)) {
+      return res.status(400).json({ error: 'Must not be empty' })
+    }
+    const { waveId } = req.params
+    const waveDoc = await db.doc(`/waves/${waveId}`).get()
+    if (!waveDoc.exists) {
+      return res.status(404).json({ error: `Wave ${waveId} not found.` })
+    }
+    const newComment = {
+      body: req.body.body,
+      handle: req.user.handle,
+      createdAt: new Date().toISOString(),
+      waveId: waveId,
+      displayPicture: req.user.displayPicture
+    }
+    await db.collection('comments').add(newComment)
+    return res.json(newComment)
+  },
+  (err, req, res) => {
+    console.error(err)
+    return res
+      .status(500)
+      .json({ error: `(${err.code || '❌'}) Could not create new comment` })
   }
 )
