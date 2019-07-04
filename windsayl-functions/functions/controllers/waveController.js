@@ -7,12 +7,14 @@ const { catchErrors } = require('../util/errors')
 
 exports.getWaves = catchErrors(
   async (req, res) => {
-    const waves = []
-    const data = await db
+    // 1. Get every wave
+    const docs = await db
       .collection('waves')
       .orderBy('createdAt', 'desc')
       .get()
-    data.forEach(doc =>
+    // 2. Create and populate an array for them
+    const waves = []
+    docs.forEach(doc =>
       waves.push({
         id: doc.id,
         body: doc.data().body,
@@ -20,6 +22,7 @@ exports.getWaves = catchErrors(
         createdAt: doc.data().createdAt
       })
     )
+    // 3. Return it
     return res.json(waves)
   },
   (err, req, res) => {
@@ -33,19 +36,24 @@ exports.getWaves = catchErrors(
 exports.getWave = catchErrors(
   async (req, res) => {
     const { waveId } = req.params
+    // 1. Check if wave exists
     const waveDoc = await db.doc(`/waves/${waveId}`).get()
     if (!waveDoc.exists) {
       return res.status(404).json({ error: `Wave ${waveId} not found.` })
     }
-    const waveData = doc.data()
+    // 2. Get the associated comments
     const commentDocs = await db
       .collection('comments')
       .orderBy('createdAt', 'desc')
       .where('waveId', '==', waveId)
       .get()
+    // 3. Form the wave data
+    const waveData = doc.data()
     waveData.waveId = waveId
     waveData.comments = []
+    // 4. Populate the comment data
     commentDocs.forEach(doc => waveData.comments.push(doc.data()))
+    // 5. Return it
     return res.json(waveData)
   },
   (err, req, res) => {
@@ -58,6 +66,7 @@ exports.getWave = catchErrors(
 
 exports.createWave = catchErrors(
   async (req, res) => {
+    // 1. Setup the wave
     const newWave = {
       body: req.body.body,
       handle: req.user.handle,
@@ -66,7 +75,9 @@ exports.createWave = catchErrors(
       splashCount: 0,
       commentCount: 0
     }
+    // 2. Create the wave
     const { id } = await db.collection('waves').add(newWave)
+    // 3. Return the waveData and it's id
     newWave.waveId = id
     return res.json(newWave)
   },
@@ -78,17 +89,47 @@ exports.createWave = catchErrors(
   }
 )
 
-exports.createComment = catchErrors(
+exports.deleteWave = catchErrors(
   async (req, res) => {
-    if (isEmpty(req.body.body)) {
-      return res.status(400).json({ error: 'Must not be empty' })
-    }
     const { waveId } = req.params
+    const { handle } = req.user
+    // 1. Check if wave exists
     const waveDoc = await db.doc(`/waves/${waveId}`).get()
     if (!waveDoc.exists) {
       return res.status(404).json({ error: `Wave ${waveId} not found.` })
     }
+    // 2. Check if user made the comment
+    if (handle !== commentDoc.data().handle) {
+      return res
+        .status(403)
+        .json({ error: "You cannot delete someone else's comment" })
+    }
+    // 3. Delete the wave
+    await db.doc(`/waves/${waveId}`).delete()
+    // 4. Return a success message
+    return res.json({ message: `Successfully deleted wave ${waveId}` })
+  },
+  (err, req, res) => {
+    console.error(err)
+    return res
+      .status(500)
+      .json({ error: `(${err.code || '❌'}) Could not delete wave` })
+  }
+)
 
+exports.createComment = catchErrors(
+  async (req, res) => {
+    const { waveId } = req.params
+    // 1. Check if the comment is empty
+    if (isEmpty(req.body.body)) {
+      return res.status(400).json({ error: 'Must not be empty' })
+    }
+    // 2. Check if wave exists
+    const waveDoc = await db.doc(`/waves/${waveId}`).get()
+    if (!waveDoc.exists) {
+      return res.status(404).json({ error: `Wave ${waveId} not found.` })
+    }
+    // 3. Form the new comment
     const newComment = {
       body: req.body.body,
       handle: req.user.handle,
@@ -96,10 +137,13 @@ exports.createComment = catchErrors(
       createdAt: new Date().toISOString(),
       waveId: waveId
     }
+    // 4. Add it to the database
     await db.collection('comments').add(newComment)
+    // 5. Update the wave's comment count
     await db
       .doc(`/waves/${waveId}`)
       .update({ commentCount: waveDoc.data().commentCount + 1 })
+    // 6. Return the comment count
     return res.json(newComment)
   },
   (err, req, res) => {
@@ -131,7 +175,7 @@ exports.deleteComment = catchErrors(
         .json({ error: "You cannot delete someone else's comment" })
     }
     // 4. Delete the comment
-    await db.doc(`comments/${commentId}`).delete()
+    await db.doc(`/comments/${commentId}`).delete()
     // 5. Update the wave
     const updatedWave = waveDoc.data()
     updatedWave.commentCount--

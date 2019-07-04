@@ -23,6 +23,11 @@ const userController = require('./controllers/userController')
 app.get('/wave', waveController.getWaves)
 app.post('/wave', authController.verifyToken, waveController.createWave)
 app.get('/wave/:waveId', waveController.getWave)
+app.delete(
+  '/wave/:waveId',
+  authController.verifyToken,
+  waveController.deleteWave
+)
 app.post(
   '/wave/:waveId/comment',
   authController.verifyToken,
