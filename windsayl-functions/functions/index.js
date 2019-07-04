@@ -21,7 +21,7 @@ const userController = require('./controllers/userController')
 // Routing
 
 app.get('/wave', waveController.getWaves)
-app.post('/wave/:waveId', waveController.getWave)
+app.get('/wave/:waveId', waveController.getWave)
 app.post('/wave', authController.verifyToken, waveController.createWave)
 
 // TODO: Delete wave

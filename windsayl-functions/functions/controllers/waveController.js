@@ -23,17 +23,35 @@ exports.getWaves = catchErrors(
   },
   (err, req, res) => {
     console.error(err)
-    return res.status(500).json({ error: 'Could not get waves' })
+    return res
+      .status(500)
+      .json({ error: `(${err.code || '❌'}) Could not get waves` })
   }
 )
 
 exports.getWave = catchErrors(
   async (req, res) => {
-    return res.json({ message: 'woot' })
+    const { waveId } = req.params
+    const doc = await db.doc(`/waves/${waveId}`).get()
+    if (!doc.exists) {
+      return res.status(404).json({ error: `Wave ${waveId} not found.` })
+    }
+    const waveData = doc.data()
+    const commentDocs = await db
+      .collection('comments')
+      .orderBy('createdAt', 'desc')
+      .where('waveId', '==', waveId)
+      .get()
+    waveData.waveId = waveId
+    waveData.comments = []
+    commentDocs.forEach(doc => waveData.comments.push(doc.data()))
+    return res.json(waveData)
   },
   (err, req, res) => {
     console.error(err)
-    return res.status(500).json({ error: 'Could not get wave' })
+    return res
+      .status(500)
+      .json({ error: `(${err.code || '❌'}) Could not get wave` })
   }
 )
 
@@ -49,6 +67,8 @@ exports.createWave = catchErrors(
   },
   (err, req, res) => {
     console.error(err)
-    return res.status(500).json({ error: 'Could not create new wave' })
+    return res
+      .status(500)
+      .json({ error: `(${err.code || '❌'}) Could not create new wave` })
   }
 )

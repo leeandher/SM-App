@@ -196,8 +196,8 @@ exports.uploadImage = catchErrors(
   },
   (err, req, res) => {
     console.error(err)
-    return res
-      .status(500)
-      .json({ error: `(${err.code}) Could not upload display picture` })
+    return res.status(500).json({
+      error: `(${err.code || '❌'}) Could not upload display picture`
+    })
   }
 )
