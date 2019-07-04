@@ -1,16 +1,16 @@
-const firebase = require("firebase");
-const admin = require("firebase-admin");
-const db = admin.firestore();
+const firebase = require('firebase')
+const admin = require('firebase-admin')
+const db = admin.firestore()
 
-const { catchErrors } = require("../utils");
+const { catchErrors } = require('../util/errors')
 
 exports.getWaves = catchErrors(
   async (req, res) => {
-    const waves = [];
+    const waves = []
     const data = await db
-      .collection("waves")
-      .orderBy("createdAt", "desc")
-      .get();
+      .collection('waves')
+      .orderBy('createdAt', 'desc')
+      .get()
     data.forEach(doc =>
       waves.push({
         id: doc.id,
@@ -18,14 +18,14 @@ exports.getWaves = catchErrors(
         handle: doc.data().handle,
         createdAt: doc.data().createdAt
       })
-    );
-    return res.json(waves);
+    )
+    return res.json(waves)
   },
   (err, req, res) => {
-    console.error(err);
-    return res.status(500).json({ error: "Could not get waves" });
+    console.error(err)
+    return res.status(500).json({ error: 'Could not get waves' })
   }
-);
+)
 
 exports.createWave = catchErrors(
   async (req, res) => {
@@ -33,12 +33,12 @@ exports.createWave = catchErrors(
       body: req.body.body,
       handle: req.user.handle,
       createdAt: new Date().toISOString()
-    };
-    const { id } = await db.collection("waves").add(newWave);
-    res.json({ message: `Wave (ID: ${id}) was successfully created` });
+    }
+    const { id } = await db.collection('waves').add(newWave)
+    res.json({ message: `Wave (ID: ${id}) was successfully created` })
   },
   (err, req, res) => {
-    console.error(err);
-    return res.status(500).json({ error: "Could not create new wave" });
+    console.error(err)
+    return res.status(500).json({ error: 'Could not create new wave' })
   }
-);
+)

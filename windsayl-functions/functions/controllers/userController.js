@@ -10,7 +10,7 @@ const db = admin.firestore()
 
 const firebaseConfig = require('../etc/firebaseConfig.json')
 const { isEmpty, isEmail } = require('../util/validators')
-const { catchErrors } = require('../utils')
+const { catchErrors } = require('../util/errors')
 
 exports.signUp = catchErrors(
   async (req, res) => {
