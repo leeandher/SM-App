@@ -110,7 +110,46 @@ exports.createComment = catchErrors(
   }
 )
 
-exports.splashWave = catchErrors(
+exports.deleteComment = catchErrors(
+  async (req, res) => {
+    const { waveId, commentId } = req.params
+    const { handle } = req.user
+    // 1. Check if wave exists
+    const waveDoc = await db.doc(`/waves/${waveId}`).get()
+    if (!waveDoc.exists) {
+      return res.status(404).json({ error: `Wave ${waveId} not found.` })
+    }
+    // 2. Check if comment exists
+    const commentDoc = await db.doc(`/comments/${commentId}`).get()
+    if (!commentDoc.exists) {
+      return res.status(404).json({ error: `Comment ${commentId} not found.` })
+    }
+    // 3. Check if user made the comment
+    if (handle !== commentDoc.data().handle) {
+      return res
+        .status(403)
+        .json({ error: "You cannot delete someone else's comment" })
+    }
+    // 4. Delete the comment
+    await db.doc(`comments/${commentId}`).delete()
+    // 5. Update the wave
+    const updatedWave = waveDoc.data()
+    updatedWave.commentCount--
+    await db
+      .doc(`/waves/${waveId}`)
+      .update({ splashCount: updatedWave.splashCount })
+    // 6. Return the wave
+    return res.json(updatedWave)
+  },
+  (err, req, res) => {
+    console.error(err)
+    return res
+      .status(500)
+      .json({ error: `(${err.code || '❌'}) Could not delete comment` })
+  }
+)
+
+exports.createSplash = catchErrors(
   async (req, res) => {
     const { waveId } = req.params
     const { handle } = req.user
@@ -150,7 +189,7 @@ exports.splashWave = catchErrors(
   }
 )
 
-exports.unsplashWave = catchErrors(
+exports.deleteSplash = catchErrors(
   async (req, res) => {
     const { waveId } = req.params
     const { handle } = req.user

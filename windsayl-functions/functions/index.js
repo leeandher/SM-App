@@ -28,18 +28,22 @@ app.post(
   authController.verifyToken,
   waveController.createComment
 )
+app.delete(
+  '/wave/:waveId/comment/:commentId',
+  authController.verifyToken,
+  waveController.deleteComment
+)
 app.get(
   '/wave/:waveId/splash',
   authController.verifyToken,
-  waveController.splashWave
+  waveController.createSplash
 )
 app.delete(
   '/wave/:waveId/splash',
   authController.verifyToken,
-  waveController.unsplashWave
+  waveController.deleteSplash
 )
 
-// TODO: Delete wave
 // TODO: Ripple a wave (retweet) - SELF MADE
 
 app.post('/signup', userController.signUp)
