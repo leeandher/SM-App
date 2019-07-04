@@ -98,11 +98,11 @@ exports.deleteWave = catchErrors(
     if (!waveDoc.exists) {
       return res.status(404).json({ error: `Wave ${waveId} not found.` })
     }
-    // 2. Check if user made the comment
-    if (handle !== commentDoc.data().handle) {
+    // 2. Check if user made the wave
+    if (handle !== waveDoc.data().handle) {
       return res
         .status(403)
-        .json({ error: "You cannot delete someone else's comment" })
+        .json({ error: "You cannot delete someone else's wave" })
     }
     // 3. Delete the wave
     await db.doc(`/waves/${waveId}`).delete()
@@ -138,7 +138,8 @@ exports.createComment = catchErrors(
       waveId: waveId
     }
     // 4. Add it to the database
-    await db.collection('comments').add(newComment)
+    const { id } = await db.collection('comments').add(newComment)
+    newComment.commentId = id
     // 5. Update the wave's comment count
     await db
       .doc(`/waves/${waveId}`)
@@ -181,7 +182,7 @@ exports.deleteComment = catchErrors(
     updatedWave.commentCount--
     await db
       .doc(`/waves/${waveId}`)
-      .update({ splashCount: updatedWave.splashCount })
+      .update({ commentCount: updatedWave.commentCount })
     // 6. Return the wave
     return res.json(updatedWave)
   },
