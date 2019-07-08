@@ -73,7 +73,8 @@ exports.createWave = catchErrors(
       displayPicture: req.user.displayPicture,
       createdAt: new Date().toISOString(),
       splashCount: 0,
-      commentCount: 0
+      commentCount: 0,
+      rippleCount: 0
     }
     // 2. Create the wave
     const { id } = await db.collection('waves').add(newWave)
@@ -271,5 +272,91 @@ exports.deleteSplash = catchErrors(
     return res
       .status(500)
       .json({ error: `(${err.code || '❌'}) Could not unsplash this wave` })
+  }
+)
+
+exports.createRipple = catchErrors(
+  async (req, res) => {
+    const { waveId } = req.params
+    const { handle } = req.user
+    // 1. Get original wave, error if not found
+    const waveDoc = await db.doc(`/waves/${waveId}`).get()
+    // 2. If not found, error out
+    if (!waveDoc.exists) {
+      return res.status(404).json({ error: `Wave ${waveId} was not found!` })
+    }
+    // 3. Check if the ripple already exists
+    const rippleDocs = await db
+      .collection('/ripples')
+      .where('rippleHandle', '==', handle)
+      .where('waveId', '==', waveId)
+      .limit(1)
+      .get()
+    if (!rippleDocs.empty) {
+      return res
+        .status(400)
+        .json({ error: `You cannot ripple a wave you've already rippled!` })
+    }
+    // 4. Create the ripple
+    const newRipple = {
+      waveId,
+      body: waveDoc.data().body,
+      handle: waveDoc.data().handle,
+      createdAt: new Date().toISOString(),
+      rippleHandle: handle
+    }
+    // 5. Save the ripple to the data store
+    await db.collection('ripples').add(newRipple)
+    // 6. Increase the rippleCount of the original wave
+    const updatedWave = waveDoc.data()
+    updatedWave.rippleCount++
+    await db
+      .doc(`/waves/${waveId}`)
+      .update({ rippleCount: updatedWave.rippleCount })
+    // 7. Return the new ripple data
+    return res.json(updatedWave)
+  },
+  (err, req, res) => {
+    console.error(err)
+    return res.status(500).json({ error: 'Could not ripple this wave' })
+  }
+)
+
+exports.deleteRipple = catchErrors(
+  async (req, res) => {
+    const { waveId } = req.params
+    const { handle } = req.user
+    // 1. Get original wave, error if not found
+    const waveDoc = await db.doc(`/waves/${waveId}`).get()
+    // 2. If not found, error out
+    if (!waveDoc.exists) {
+      return res.status(404).json({ error: `Wave ${waveId} was not found!` })
+    }
+    // 3. Check if the ripple already exists
+    const rippleDocs = await db
+      .collection('/ripples')
+      .where('rippleHandle', '==', handle)
+      .where('waveId', '==', waveId)
+      .limit(1)
+      .get()
+    if (rippleDocs.empty) {
+      return res
+        .status(400)
+        .json({ error: `You cannot delete a ripple you haven't made!` })
+    }
+    // 3. If so, delete it
+    await db.doc(`/ripples/${rippleDocs.docs[0].id}`).delete()
+    // 4. Update the rippleCount count on the wave
+    const updatedWave = waveDoc.data()
+    updatedWave.rippleCount--
+    await db
+      .doc(`/waves/${waveId}`)
+      .update({ rippleCount: updatedWave.rippleCount })
+    // 5. Return the new wave data
+    return res.json(updatedWave)
+  },
+  (err, req, res) => {
+    console.error(err)
+    return res.status(500).json({ error: 'Could not ripple this wave' })
   }
 )
