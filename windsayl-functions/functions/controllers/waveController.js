@@ -300,10 +300,10 @@ exports.createRipple = catchErrors(
     // 4. Create the ripple
     const newRipple = {
       waveId,
+      rippleBody: req.body.body,
+      rippleHandle: handle,
       body: waveDoc.data().body,
-      handle: waveDoc.data().handle,
-      createdAt: new Date().toISOString(),
-      rippleHandle: handle
+      handle: waveDoc.data().handle
     }
     // 5. Save the ripple to the data store
     await db.collection('ripples').add(newRipple)

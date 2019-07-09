@@ -29,6 +29,16 @@ app.delete(
   waveController.deleteWave
 )
 app.post(
+  '/wave/:waveId/ripple',
+  authController.verifyToken,
+  waveController.createRipple
+)
+app.delete(
+  '/wave/:waveId/ripple',
+  authController.verifyToken,
+  waveController.deleteRipple
+)
+app.post(
   '/wave/:waveId/comment',
   authController.verifyToken,
   waveController.createComment
