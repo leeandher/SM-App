@@ -37,5 +37,13 @@
   "splashes": {
     "handle": "!string",
     "waveId": "!string"
+  },
+  "notifications": {
+    "createdAt": "!string",
+    "read": "!boolean",
+    "recipient": "!string",
+    "sender": "!string",
+    "type": "ripple | comment | splash",
+    "waveId": "!string"
   }
 }

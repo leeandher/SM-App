@@ -19,7 +19,7 @@ exports.createRippleNotification = functions.firestore
       // 3. Create the notification
       await db.doc(`/notifications/${rippleDoc.id}`).set({
         createdAt: new Date().toISOString(),
-        recepient: waveDoc.data().handle,
+        recipient: waveDoc.data().handle,
         sender: rippleDoc.data().handle,
         type: 'ripple',
         read: false,
@@ -53,7 +53,7 @@ exports.createSplashNotification = functions.firestore
       // 3. Create the notification
       await db.doc(`/notifications/${splashDoc.id}`).set({
         createdAt: new Date().toISOString(),
-        recepient: waveDoc.data().handle,
+        recipient: waveDoc.data().handle,
         sender: splashDoc.data().handle,
         type: 'splash',
         read: false,
@@ -88,7 +88,7 @@ exports.createCommentNotification = functions.firestore
         // 3. Create the notification
         await db.doc(`/notifications/${commentDoc.id}`).set({
           createdAt: new Date().toISOString(),
-          recepient: waveDoc.data().handle,
+          recipient: waveDoc.data().handle,
           sender: commentDoc.data().handle,
           type: 'comment',
           read: false,

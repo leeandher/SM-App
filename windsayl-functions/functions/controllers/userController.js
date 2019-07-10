@@ -134,18 +134,40 @@ exports.editUser = catchErrors(
 
 exports.getData = catchErrors(
   async (req, res) => {
+    // Get user info
     const doc = await db.doc(`/users/${req.user.handle}`).get()
     if (!doc.exists) throw new Error('User does not exist!')
     const credentials = doc.data()
-    const likeDocs = await db
-      .collection('likes')
-      .where('userHandle', '==', req.user.handle)
+    // Get this user's splashes
+    const splashDocs = await db
+      .collection('splashes')
+      .where('handle', '==', req.user.handle)
       .get()
-    const likes = []
-    likeDocs.forEach(doc => likes.push(doc.data()))
+    const splashes = []
+    splashDocs.forEach(doc => splashes.push(doc.data()))
+    // Get this user's notifications
+    const notifDocs = await db
+      .collection('notifications')
+      .where('recipient', '==', req.user.handle)
+      .orderBy('createdAt', 'desc')
+      .limit(10)
+      .get()
+    const notifications = []
+    notifDocs.forEach((doc, i) => {
+      notifications.push({
+        createdAt: doc.data().createdAt,
+        read: doc.data().read,
+        recipient: doc.data().recipient,
+        sender: doc.data().sender,
+        type: doc.data().type,
+        waveId: doc.data().waveId,
+        notificationId: doc.id
+      })
+    })
     return res.json({
       credentials,
-      likes
+      splashes,
+      notifications
     })
   },
   (err, req, res) => {
