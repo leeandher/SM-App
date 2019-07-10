@@ -24,3 +24,7 @@ $ npm install --save firebase firebase-admin
 - controllers for organization
 - helper methods to chain .catches
 - notifications
+- Indexing complicated db queries firebase link thing
+- batch writing
+  - creating a series of operations
+  - do them all at once

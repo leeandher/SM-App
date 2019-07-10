@@ -118,7 +118,7 @@ exports.login = catchErrors(
   }
 )
 
-exports.editUser = catchErrors(
+exports.updateUser = catchErrors(
   async (req, res) => {
     let userData = cleanUserData(req.body)
     await db.doc(`/users/${req.user.handle}`).update(userData)
@@ -132,12 +132,52 @@ exports.editUser = catchErrors(
   }
 )
 
-exports.getData = catchErrors(
+exports.getUserPublic = catchErrors(
+  async (req, res) => {
+    const { handle } = req.params
+    // Get user info
+    const userDoc = await db.doc(`/users/${handle}`).get()
+    if (!userDoc.exists) {
+      return res.status(404).json({ error: '🤷‍♀️ User not found! 🤷‍♂️' })
+    }
+    const user = userDoc.data()
+    // Get user's wave info
+    const waveDocs = await db
+      .collection('waves')
+      .where('handle', '==', handle)
+      .orderBy('createdAt', 'desc')
+      .get()
+    const waves = []
+    waveDocs.forEach(doc =>
+      waves.push({
+        body: doc.data().body,
+        handle: doc.data().handle,
+        displayPicture: doc.data().displayPicture,
+        commentCount: doc.data().commentCount,
+        splashCount: doc.data().splashCount,
+        rippleCount: doc.data().rippleCount,
+        createdAt: doc.data().createdAt,
+        waveId: doc.tmpdir
+      })
+    )
+    res.json({ user, waves })
+  },
+  (err, req, res) => {
+    console.error(err)
+    return res
+      .status(500)
+      .json({ error: `(${err.code || '❌'}) Could not get user details` })
+  }
+)
+
+exports.getUserPrivate = catchErrors(
   async (req, res) => {
     // Get user info
-    const doc = await db.doc(`/users/${req.user.handle}`).get()
-    if (!doc.exists) throw new Error('User does not exist!')
-    const credentials = doc.data()
+    const userDoc = await db.doc(`/users/${req.user.handle}`).get()
+    if (!userDoc.exists) {
+      return res.status(404).json({ error: '🤷‍♀️ User not found! 🤷‍♂️' })
+    }
+    const credentials = userDoc.data()
     // Get this user's splashes
     const splashDocs = await db
       .collection('splashes')
@@ -175,6 +215,25 @@ exports.getData = catchErrors(
     return res
       .status(500)
       .json({ error: `(${err.code || '❌'}) Could not get user info` })
+  }
+)
+
+exports.markNotifications = catchErrors(
+  async (req, res) => {
+    const notifBatch = db.batch()
+    const { notifications: notifs } = req.body
+    notifs.forEach(notifId => {
+      const notifDoc = db.doc(`/notifications/${notifId}`)
+      notifBatch.update(notifDoc, { read: true })
+    })
+    await notifBatch.commit()
+    res.json({ message: `💌 ${notifs.length} Notifications marked as read 💌` })
+  },
+  (err, req, res) => {
+    console.error(err)
+    return res.status(500).json({
+      error: `(${err.code || '❌'}) Could not mark notifications as read`
+    })
   }
 )
 
