@@ -9,7 +9,7 @@ const admin = require('firebase-admin')
 const db = admin.firestore()
 
 const firebaseConfig = require('../etc/firebaseConfig.json')
-const { isEmpty, isEmail } = require('../util/validators')
+const { isEmpty, isEmail, cleanUserData } = require('../util/validators')
 const { catchErrors } = require('../util/errors')
 
 exports.signUp = catchErrors(
@@ -112,10 +112,132 @@ exports.login = catchErrors(
       })
     }
     console.error(err)
-    return res.status(500).json({ error: `(${err.code}) Could not login` })
+    return res
+      .status(500)
+      .json({ error: `(${err.code || '❌'}) Could not login` })
   }
 )
 
+exports.updateUser = catchErrors(
+  async (req, res) => {
+    let userData = cleanUserData(req.body)
+    await db.doc(`/users/${req.user.handle}`).update(userData)
+    return res.json({ message: 'Details have been edited' })
+  },
+  (err, req, res) => {
+    console.error(err)
+    return res
+      .status(500)
+      .json({ error: `(${err.code || '❌'}) Could not edit user` })
+  }
+)
+
+exports.getUserPublic = catchErrors(
+  async (req, res) => {
+    const { handle } = req.params
+    // Get user info
+    const userDoc = await db.doc(`/users/${handle}`).get()
+    if (!userDoc.exists) {
+      return res.status(404).json({ error: '🤷‍♀️ User not found! 🤷‍♂️' })
+    }
+    const user = userDoc.data()
+    // Get user's wave info
+    const waveDocs = await db
+      .collection('waves')
+      .where('handle', '==', handle)
+      .orderBy('createdAt', 'desc')
+      .get()
+    const waves = []
+    waveDocs.forEach(doc =>
+      waves.push({
+        body: doc.data().body,
+        handle: doc.data().handle,
+        displayPicture: doc.data().displayPicture,
+        commentCount: doc.data().commentCount,
+        splashCount: doc.data().splashCount,
+        rippleCount: doc.data().rippleCount,
+        createdAt: doc.data().createdAt,
+        waveId: doc.tmpdir
+      })
+    )
+    res.json({ user, waves })
+  },
+  (err, req, res) => {
+    console.error(err)
+    return res
+      .status(500)
+      .json({ error: `(${err.code || '❌'}) Could not get user details` })
+  }
+)
+
+exports.getUserPrivate = catchErrors(
+  async (req, res) => {
+    // Get user info
+    const userDoc = await db.doc(`/users/${req.user.handle}`).get()
+    if (!userDoc.exists) {
+      return res.status(404).json({ error: '🤷‍♀️ User not found! 🤷‍♂️' })
+    }
+    const credentials = userDoc.data()
+    // Get this user's splashes
+    const splashDocs = await db
+      .collection('splashes')
+      .where('handle', '==', req.user.handle)
+      .get()
+    const splashes = []
+    splashDocs.forEach(doc => splashes.push(doc.data()))
+    // Get this user's notifications
+    const notifDocs = await db
+      .collection('notifications')
+      .where('recipient', '==', req.user.handle)
+      .orderBy('createdAt', 'desc')
+      .limit(10)
+      .get()
+    const notifications = []
+    notifDocs.forEach((doc, i) => {
+      notifications.push({
+        createdAt: doc.data().createdAt,
+        read: doc.data().read,
+        recipient: doc.data().recipient,
+        sender: doc.data().sender,
+        type: doc.data().type,
+        waveId: doc.data().waveId,
+        notificationId: doc.id
+      })
+    })
+    return res.json({
+      credentials,
+      splashes,
+      notifications
+    })
+  },
+  (err, req, res) => {
+    console.error(err)
+    return res
+      .status(500)
+      .json({ error: `(${err.code || '❌'}) Could not get user info` })
+  }
+)
+
+exports.markNotifications = catchErrors(
+  async (req, res) => {
+    const notifBatch = db.batch()
+    const { notifications: notifs } = req.body
+    notifs.forEach(notifId => {
+      const notifDoc = db.doc(`/notifications/${notifId}`)
+      notifBatch.update(notifDoc, { read: true })
+    })
+    await notifBatch.commit()
+    res.json({ message: `💌 ${notifs.length} Notifications marked as read 💌` })
+  },
+  (err, req, res) => {
+    console.error(err)
+    return res.status(500).json({
+      error: `(${err.code || '❌'}) Could not mark notifications as read`
+    })
+  }
+)
+
+// TODO: Repair
 exports.uploadImage = catchErrors(
   (req, res) => {
     const busboy = new Busboy({ headers: req.headers })
@@ -155,8 +277,8 @@ exports.uploadImage = catchErrors(
   },
   (err, req, res) => {
     console.error(err)
-    return res
-      .status(500)
-      .json({ error: `(${err.code}) Could not upload display picture` })
+    return res.status(500).json({
+      error: `(${err.code || '❌'}) Could not upload display picture`
+    })
   }
 )
