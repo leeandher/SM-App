@@ -92,6 +92,7 @@ exports.createWave = catchErrors(
 
 exports.deleteWave = catchErrors(
   async (req, res) => {
+    const waveDeletionBatch = db.batch()
     const { waveId } = req.params
     const { handle } = req.user
     // 1. Check if wave exists
@@ -105,10 +106,29 @@ exports.deleteWave = catchErrors(
         .status(403)
         .json({ error: "You cannot delete someone else's wave" })
     }
-    // 3. Delete the wave
-    await db.doc(`/waves/${waveId}`).delete()
-    // 4. Return a success message
-    return res.json({ message: `Successfully deleted wave ${waveId}` })
+    // 3. Find any comments, and delete them
+    const commentDocs = await db
+      .collection('comments')
+      .where('waveId', '==', waveId)
+      .get()
+    commentDocs.forEach(doc => {
+      waveDeletionBatch.delete(db.doc(`/comments/${doc.id}`))
+    })
+    // 4. Find any splashes, and delete them
+    const splashDocs = await db
+      .collection('splashes')
+      .where('waveId', '==', waveId)
+      .get()
+    splashDocs.forEach(doc => {
+      waveDeletionBatch.delete(db.doc(`/splashes/${doc.id}`))
+    })
+    // 5. Delete the wave
+    waveDeletionBatch.delete(db.doc(`/waves/${waveId}`))
+    await waveDeletionBatch.commit()
+    // 6. Return a success message
+    return res.json({
+      message: `Successfully deleted wave ${waveId}, it's splashes, and comments`
+    })
   },
   (err, req, res) => {
     console.error(err)
