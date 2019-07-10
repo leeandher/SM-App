@@ -288,7 +288,7 @@ exports.createRipple = catchErrors(
     // 3. Check if the ripple already exists
     const rippleDocs = await db
       .collection('/ripples')
-      .where('rippleHandle', '==', handle)
+      .where('handle', '==', handle)
       .where('waveId', '==', waveId)
       .limit(1)
       .get()
@@ -300,10 +300,10 @@ exports.createRipple = catchErrors(
     // 4. Create the ripple
     const newRipple = {
       waveId,
-      rippleBody: req.body.body,
-      rippleHandle: handle,
-      body: waveDoc.data().body,
-      handle: waveDoc.data().handle
+      waveBody: waveDoc.data().body,
+      waveHandle: waveDoc.data().handle,
+      body: req.body.body,
+      handle: handle
     }
     // 5. Save the ripple to the data store
     await db.collection('ripples').add(newRipple)
@@ -335,7 +335,7 @@ exports.deleteRipple = catchErrors(
     // 3. Check if the ripple already exists
     const rippleDocs = await db
       .collection('/ripples')
-      .where('rippleHandle', '==', handle)
+      .where('handle', '==', handle)
       .where('waveId', '==', waveId)
       .limit(1)
       .get()
