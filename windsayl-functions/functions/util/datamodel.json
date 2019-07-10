@@ -1,0 +1,41 @@
+// This file has no influence on the application
+// It simply serves as a reference for the structure of the Firebase DB
+{
+  "users": {
+    "userId": "!string",
+    "handle": "!string",
+    "email": "!string",
+    "displayPicture": "!string",
+    "createdAt": "!string",
+    "location": "string",
+    "website": "string",
+    "bio": "string"
+  },
+  "waves": {
+    "body": "!string",
+    "handle": "!string",
+    "displayPicture": "!string",
+    "commentCount": "!number",
+    "splashCount": "!number",
+    "rippleCount": "!number",
+    "createdAt": "!string"
+  },
+  "ripples": {
+    "body": "!string",
+    "handle": "!string",
+    "rippleBody": "!string",
+    "rippleHandle": "!string",
+    "waveId": "!string"
+  },
+  "comments": {
+    "body": "!string",
+    "handle": "!string",
+    "displayPicture": "!string",
+    "createdAt": "!string",
+    "waveId": "!string"
+  },
+  "splashes": {
+    "handle": "!string",
+    "waveId": "!string"
+  }
+}
