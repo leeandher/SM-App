@@ -19,6 +19,7 @@ const authController = require('./controllers/authController')
 const waveController = require('./controllers/waveController')
 const userController = require('./controllers/userController')
 const notifController = require('./controllers/notifController')
+const triggerController = require('./controllers/triggerController')
 
 // Get all waves
 app.get('/wave', waveController.getWaves)
@@ -100,3 +101,6 @@ exports.createCommentNotification = notifController.createCommentNotification
 exports.deleteCommentNotification = notifController.deleteCommentNotification
 exports.createSplashNotification = notifController.createSplashNotification
 exports.deleteSplashNotification = notifController.deleteSplashNotification
+
+exports.onUpdateUser = triggerController.onUpdateUser
+exports.onDeleteWave = triggerController.onDeleteWave
