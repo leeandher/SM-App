@@ -155,7 +155,7 @@ exports.getUserPublic = catchErrors(
         waveId: doc.tmpdir
       })
     )
-    res.json({ user, waves })
+    return res.json({ user, waves })
   },
   (err, req, res) => {
     console.error(err)
