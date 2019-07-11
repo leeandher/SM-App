@@ -16,15 +16,18 @@ exports.createRippleNotification = functions.firestore
       if (!waveDoc.exists) {
         throw new Error(`❌ Ripple ${rippleDoc.id} has an invalid wave ❌`)
       }
-      // 3. Create the notification
-      await db.doc(`/notifications/${rippleDoc.id}`).set({
-        createdAt: new Date().toISOString(),
-        recipient: waveDoc.data().handle,
-        sender: rippleDoc.data().handle,
-        type: 'ripple',
-        read: false,
-        waveId: waveDoc.id
-      })
+      // 3. If the user sending isn't the recipient
+      if (waveDoc.data().handle !== rippleDoc.data().handle) {
+        // 4. Create the notification
+        await db.doc(`/notifications/${rippleDoc.id}`).set({
+          createdAt: new Date().toISOString(),
+          recipient: waveDoc.data().handle,
+          sender: rippleDoc.data().handle,
+          type: 'ripple',
+          read: false,
+          waveId: waveDoc.id
+        })
+      }
     }),
     err => console.error(err)
   )
@@ -50,15 +53,17 @@ exports.createSplashNotification = functions.firestore
       if (!waveDoc.exists) {
         throw new Error(`❌ Splash ${splashDoc.id} has an invalid wave ❌`)
       }
-      // 3. Create the notification
-      await db.doc(`/notifications/${splashDoc.id}`).set({
-        createdAt: new Date().toISOString(),
-        recipient: waveDoc.data().handle,
-        sender: splashDoc.data().handle,
-        type: 'splash',
-        read: false,
-        waveId: waveDoc.id
-      })
+      if (waveDoc.data().handle !== splashDoc.data().handle) {
+        // 3. Create the notification
+        await db.doc(`/notifications/${splashDoc.id}`).set({
+          createdAt: new Date().toISOString(),
+          recipient: waveDoc.data().handle,
+          sender: splashDoc.data().handle,
+          type: 'splash',
+          read: false,
+          waveId: waveDoc.id
+        })
+      }
     }),
     err => console.error(err)
   )
@@ -85,15 +90,17 @@ exports.createCommentNotification = functions.firestore
         if (!waveDoc.exists) {
           throw new Error(`❌ Comment ${commentDoc.id} has an invalid wave ❌`)
         }
-        // 3. Create the notification
-        await db.doc(`/notifications/${commentDoc.id}`).set({
-          createdAt: new Date().toISOString(),
-          recipient: waveDoc.data().handle,
-          sender: commentDoc.data().handle,
-          type: 'comment',
-          read: false,
-          waveId: waveDoc.id
-        })
+        if (waveDoc.data().handle !== commentDoc.data().handle) {
+          // 3. Create the notification
+          await db.doc(`/notifications/${commentDoc.id}`).set({
+            createdAt: new Date().toISOString(),
+            recipient: waveDoc.data().handle,
+            sender: commentDoc.data().handle,
+            type: 'comment',
+            read: false,
+            waveId: waveDoc.id
+          })
+        }
       },
       err => console.error(err)
     )

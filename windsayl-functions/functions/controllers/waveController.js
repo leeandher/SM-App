@@ -16,10 +16,14 @@ exports.getWaves = catchErrors(
     const waves = []
     docs.forEach(doc =>
       waves.push({
-        id: doc.id,
+        waveId: doc.id,
         body: doc.data().body,
         handle: doc.data().handle,
-        createdAt: doc.data().createdAt
+        createdAt: doc.data().createdAt,
+        displayPicture: doc.data().displayPicture,
+        rippleCount: doc.data().rippleCount,
+        splashCount: doc.data().splashCount,
+        commentCount: doc.data().commentCount
       })
     )
     // 3. Return it
@@ -92,7 +96,6 @@ exports.createWave = catchErrors(
 
 exports.deleteWave = catchErrors(
   async (req, res) => {
-    const waveDeletionBatch = db.batch()
     const { waveId } = req.params
     const { handle } = req.user
     // 1. Check if wave exists
@@ -106,26 +109,9 @@ exports.deleteWave = catchErrors(
         .status(403)
         .json({ error: "You cannot delete someone else's wave" })
     }
-    // 3. Find any comments, and delete them
-    const commentDocs = await db
-      .collection('comments')
-      .where('waveId', '==', waveId)
-      .get()
-    commentDocs.forEach(doc => {
-      waveDeletionBatch.delete(db.doc(`/comments/${doc.id}`))
-    })
-    // 4. Find any splashes, and delete them
-    const splashDocs = await db
-      .collection('splashes')
-      .where('waveId', '==', waveId)
-      .get()
-    splashDocs.forEach(doc => {
-      waveDeletionBatch.delete(db.doc(`/splashes/${doc.id}`))
-    })
-    // 5. Delete the wave
-    waveDeletionBatch.delete(db.doc(`/waves/${waveId}`))
-    await waveDeletionBatch.commit()
-    // 6. Return a success message
+    // 3. Delete the wave
+    await db.doc(`/waves/${waveId}`).delete()
+    // 4. Return a success message
     return res.json({
       message: `Successfully deleted wave ${waveId}, it's splashes, and comments`
     })
@@ -143,7 +129,7 @@ exports.createComment = catchErrors(
     const { waveId } = req.params
     // 1. Check if the comment is empty
     if (isEmpty(req.body.body)) {
-      return res.status(400).json({ error: 'Must not be empty' })
+      return res.status(400).json({ comment: 'Must not be empty' })
     }
     // 2. Check if wave exists
     const waveDoc = await db.doc(`/waves/${waveId}`).get()
@@ -298,7 +284,7 @@ exports.deleteSplash = catchErrors(
 exports.createRipple = catchErrors(
   async (req, res) => {
     const { waveId } = req.params
-    const { handle } = req.user
+    const { handle, displayPicture } = req.user
     // 1. Get original wave, error if not found
     const waveDoc = await db.doc(`/waves/${waveId}`).get()
     // 2. If not found, error out
@@ -323,18 +309,17 @@ exports.createRipple = catchErrors(
       waveBody: waveDoc.data().body,
       waveHandle: waveDoc.data().handle,
       body: req.body.body,
-      handle: handle
+      handle,
+      displayPicture
     }
     // 5. Save the ripple to the data store
     await db.collection('ripples').add(newRipple)
     // 6. Increase the rippleCount of the original wave
-    const updatedWave = waveDoc.data()
-    updatedWave.rippleCount++
     await db
       .doc(`/waves/${waveId}`)
-      .update({ rippleCount: updatedWave.rippleCount })
+      .update({ rippleCount: waveDoc.data().rippleCount + 1 })
     // 7. Return the new ripple data
-    return res.json(updatedWave)
+    return res.json(newRipple)
   },
   (err, req, res) => {
     console.error(err)

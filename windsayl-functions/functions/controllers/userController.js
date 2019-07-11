@@ -79,7 +79,7 @@ exports.signUp = catchErrors(
     console.error(err)
     return res
       .status(500)
-      .json({ error: `(${err.code}) Could not create new user` })
+      .json({ general: `Something went wrong, please try again!` })
   }
 )
 
@@ -106,15 +106,10 @@ exports.login = catchErrors(
     return res.json({ token })
   },
   (err, req, res) => {
-    if (err.code === 'auth/wrong-password') {
-      return res.status(403).json({
-        general: 'Incorrect password, please try again'
-      })
-    }
     console.error(err)
-    return res
-      .status(500)
-      .json({ error: `(${err.code || '❌'}) Could not login` })
+    return res.status(403).json({
+      general: 'Invalid credentials, please try again'
+    })
   }
 )
 

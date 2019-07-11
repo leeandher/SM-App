@@ -17,7 +17,9 @@ exports.catchErrors = (asyncFunction, errorHandler) => {
  * @summary Wrap asynchronous database functions with error event handler
  */
 exports.catchDBErrors = (asyncFunction, errorHandler) => {
-  return function(snapshot) {
-    return asyncFunction(snapshot).catch(error => errorHandler(error, snapshot))
+  return function(snapshot, context) {
+    return asyncFunction(snapshot, context).catch(error =>
+      errorHandler(error, snapshot, context)
+    )
   }
 }
