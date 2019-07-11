@@ -45,14 +45,16 @@ exports.onUpdateUser = functions.firestore.document('users/{id}').onUpdate(
 
 exports.onDeleteWave = functions.firestore.document('waves/{id}').onDelete(
   catchDBErrors(async (splashDoc, ctx) => {
-    const { waveId } = ctx.params
+    const { id: waveId } = ctx.params
     const waveDeletionBatch = db.batch()
+    console.log(waveId)
     // 1. Find any comments, and batch them
     const commentDocs = await db
       .collection('comments')
       .where('waveId', '==', waveId)
       .get()
     commentDocs.forEach(doc => {
+      console.log(doc.id, 'comment')
       waveDeletionBatch.delete(db.doc(`/comments/${doc.id}`))
     })
     // 2. Find any splashes, and batch them
@@ -61,6 +63,7 @@ exports.onDeleteWave = functions.firestore.document('waves/{id}').onDelete(
       .where('waveId', '==', waveId)
       .get()
     splashDocs.forEach(doc => {
+      console.log(doc.id, 'splash')
       waveDeletionBatch.delete(db.doc(`/splashes/${doc.id}`))
     })
     // 3. Find any notifications, and batch them
@@ -69,20 +72,22 @@ exports.onDeleteWave = functions.firestore.document('waves/{id}').onDelete(
       .where('waveId', '==', waveId)
       .get()
     notifDocs.forEach(doc => {
+      console.log(doc.id, 'notif')
       waveDeletionBatch.delete(db.doc(`/notifications/${doc.id}`))
     })
     // 4. Find any ripples, and batch them
     const rippleDocs = await db
-      .collection('notifications')
+      .collection('ripples')
       .where('waveId', '==', waveId)
       .get()
     rippleDocs.forEach(doc => {
+      console.log(doc.id, 'ripple')
       waveDeletionBatch.update(db.doc(`/ripples/${doc.id}`), {
         waveBody: 'This wave has been deleted',
         waveId: `${doc.data().waveId}-deleted`
       })
     })
     // 5. Commit the batch
-    await batch.commit()
+    await waveDeletionBatch.commit()
   })
 )

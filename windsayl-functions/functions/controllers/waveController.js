@@ -51,7 +51,7 @@ exports.getWave = catchErrors(
       .where('waveId', '==', waveId)
       .get()
     // 3. Form the wave data
-    const waveData = doc.data()
+    const waveData = waveDoc.data()
     waveData.waveId = waveId
     waveData.comments = []
     // 4. Populate the comment data
