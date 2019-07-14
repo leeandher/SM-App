@@ -76,6 +76,11 @@ exports.signUp = catchErrors(
         email: 'Email is already in use'
       })
     }
+    if (err.code === 'auth/weak-password') {
+      return res.status(400).json({
+        password: 'Your password must be at least 6 characters'
+      })
+    }
     console.error(err)
     return res
       .status(500)
@@ -101,9 +106,8 @@ exports.login = catchErrors(
     const data = await firebase
       .auth()
       .signInWithEmailAndPassword(user.email, user.password)
-    console.log(JSON.stringify(data.getIdToken))
-    const token = await data.user.getIdToken()
-    return res.json({ token })
+    const userToken = await data.user.getIdToken()
+    return res.json({ userToken })
   },
   (err, req, res) => {
     console.error(err)

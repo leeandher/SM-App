@@ -112,7 +112,7 @@ exports.deleteWave = catchErrors(
     await db.doc(`/waves/${waveId}`).delete()
     // 4. Return a success message
     return res.json({
-      message: `Successfully deleted wave ${waveId}, it's splashes, and comments`
+      message: `Successfully deleted wave ${waveId}`
     })
   },
   (err, req, res) => {

@@ -28,3 +28,4 @@ $ npm install --save firebase firebase-admin
 - batch writing
   - creating a series of operations
   - do them all at once
+- the whole id param context thing
