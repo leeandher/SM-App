@@ -176,7 +176,7 @@ exports.getUserPrivate = catchErrors(
     if (!userDoc.exists) {
       return res.status(404).json({ error: '🤷‍♀️ User not found! 🤷‍♂️' })
     }
-    const credentials = userDoc.data()
+    const details = userDoc.data()
     // Get this user's splashes
     const splashDocs = await db
       .collection('splashes')
@@ -204,7 +204,7 @@ exports.getUserPrivate = catchErrors(
       })
     })
     return res.json({
-      credentials,
+      details,
       splashes,
       notifications
     })
