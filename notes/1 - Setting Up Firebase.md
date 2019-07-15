@@ -12,7 +12,6 @@ First thing's first, you have to login to `console.firebase.google.com` and crea
 
 ## Installation
 
-
 After that, you can setup a basic serverless backend with firebase the first thing you have to install is the Node.js SDK:
 
 ```bash
@@ -34,3 +33,19 @@ $ firebase init
 You'll be prompted describe how you want your application structured, and you can set it up however you like. Make sure you check `Functions` as the resource you'd like to initialize. You should see the app you created on the Firebase Console which you can specify too!
 
 This will scaffold out a basic application which you can use to get started with your app!
+
+## Environment Files
+
+You should also find your `serviceAccountKey` over at:
+
+```
+https://console.firebase.google.com/u/0/project/ {{ projectId }} /settings/serviceaccounts/adminsdk
+```
+
+as well as your `firebaseConfig` over at:
+
+```
+https://console.firebase.google.com/u/0/project/ {{ projectId }} /settings/general/web
+```
+
+near the bottom of the page under the title **Firebase SDK snippet**.

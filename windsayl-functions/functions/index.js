@@ -102,5 +102,6 @@ exports.deleteCommentNotification = notifController.deleteCommentNotification
 exports.createSplashNotification = notifController.createSplashNotification
 exports.deleteSplashNotification = notifController.deleteSplashNotification
 
+// Triggers
 exports.onUpdateUser = triggerController.onUpdateUser
 exports.onDeleteWave = triggerController.onDeleteWave
