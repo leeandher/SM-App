@@ -8,7 +8,7 @@ In this application, Firebase's Cloud Functions will be used to create a **serve
 
 ## Online Setup
 
-First thing's first, you have to login to `console.firebase.google.com` and create a project for your application to live. This will give you access to all the features of firebase that you need. They usually need to be turned on, with a case by case basis. In the case of this application, Authentication, Database, and Functions are the 3 API's that we'll need access to in order to create a serverless social media app.
+First thing's first, you have to login to `console.firebase.google.com` and create a project for your application to live. This will give you access to all the features of firebase that you need. They usually need to be turned on, with a case by case basis. In the case of this application, Authentication, Database, and Functions are the 3 APIs that we'll need access to in order to create a serverless social media app.
 
 ## Installation
 

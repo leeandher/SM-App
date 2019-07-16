@@ -2,7 +2,7 @@
 
 ## Cloud Triggers
 
-When making any changes to datasets in the database, Firebase allows you to lazily operate seperate functions, which really just wait for the chance to run. These apply on any of your initialized collections, and allow you to setup code to write `onUpdate`, `onCreate` or even `onDelete`.
+When making any changes to data-sets in the database, Firebase allows you to lazily operate separate functions, which really just wait for the chance to run. These apply on any of your initialized collections, and allow you to setup code to write `onUpdate`, `onCreate` or even `onDelete`.
 
 These guys can be useful for creating side effects, or other things like notifications after certain actions have been taken by the users.
 
@@ -18,7 +18,7 @@ exports.onUpdateUser = functions.firestore
 
 As you can see, it doesn't follow the standard Express `(req, res, next)` parameters, and that because this is entirely run in the cloud, and should not result in any output to a client, since they aren't triggered by any request directly.
 
-It should also be noted that the item sent back as an argument is actually a snapshot document of the change that just occured. These are specfied in more detail in the actual Firebase Docs. You can actually use certain parts of the document as a parameter for added functionality, by specifying curly braces:
+It should also be noted that the item sent back as an argument is actually a snapshot document of the change that just occurred. These are specified in more detail in the actual Firebase Docs. You can actually use certain parts of the document as a parameter for added functionality, by specifying curly braces:
 
 ```js
 exports.onDeleteItem = functions.firestore.document('items/{id}').onDelete(
@@ -46,7 +46,7 @@ const itemBatch = db.batch()
 itemBatch.delete(/* ... */)
 itemBatch.update(/* ... */)
 itemBatch.create(/* ... */)
-// Perform the above mentionned operations
+// Perform the above mentioned operations
 await itemBatch.commit()
 ```
 

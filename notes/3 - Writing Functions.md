@@ -6,7 +6,7 @@ When it comes to actually constructing these Firebase functions, there are many 
 
 ## Admin Cloud Firestore
 
-The most complicated part about the application is controlling the reads/writes to the database, and how the data is retrieved and interpretted.
+The most complicated part about the application is controlling the reads/writes to the database, and how the data is retrieved and interpreted.
 
 Firebase's basic database system stores items referred to as `documents` in `collections` with a simple directory-like structure. If you have a collection of _posts_, with random UUID's, you can retrieve one document with the following command:
 
@@ -37,7 +37,7 @@ return res.json({ data: itemDoc.data() })
 
 The above is all outlined in the Firebase docs as well, so feel free to check those out.
 
-## Specification and Indeces
+## Specification and Indices
 
 Sometimes when you're performing queries on your data, you won't have any identifiers to go off of, so you'll just send requests for any items which fulfill some criteria. If you've written any SQL, it's pretty much that.
 
@@ -82,7 +82,7 @@ exports.catchErrors = (asyncFunction, errorHandler) => {
 
 What this function does, is take in an **asyncFunction** parameter, and attach the **errorHandler** function to it, following the `(req, res, next)` parameter structure of Express.js. The **catchErrors** function, returns a new, nameless, Express response function. It does this to gain access to the `req`, `res`, and `next` parameters.
 
-It passes these along to the _asynchronous function_, running it, but also attaches and passes it to the `.catch` method, containing the _error handler_. Now the functions have access to the Express paramaters, and can be declared easily without an ugly try and catch statement.
+It passes these along to the _asynchronous function_, running it, but also attaches and passes it to the `.catch` method, containing the _error handler_. Now the functions have access to the Express parameters, and can be declared easily without an ugly try and catch statement.
 
 In the route declaration, it would look something like this:
 

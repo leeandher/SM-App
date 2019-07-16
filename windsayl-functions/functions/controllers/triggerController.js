@@ -38,7 +38,7 @@ exports.onUpdateUser = functions.firestore.document('users/{id}').onUpdate(
       const commentDoc = db.doc(`/comments/${doc.id}`)
       displayPictureBatch.update(commentDoc, { displayPicture })
     })
-    // 4. Batch commmit to change all profile pictures
+    // 4. Batch commit to change all profile pictures
     await displayPictureBatch.commit()
   })
 )
