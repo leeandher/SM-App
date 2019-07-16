@@ -75,7 +75,7 @@ firebase.json
 
 The `index.js` file will declare the entire backend, but you shouldn't be writing any code in there, since it will quickly get complicated.
 
-Depending on the appication, you will probably have many functions that are closely related to one another. Things like user account changes, or create/read/update/delete operations on items. The clearest way to organize these are by setting up **controller** files to hold all of the functionality for each of these groups
+Depending on the application, you will probably have many functions that are closely related to one another. Things like user account changes, or create/read/update/delete operations on items. The clearest way to organize these are by setting up **controller** files to hold all of the functionality for each of these groups
 
 Now, your `index.js` file will look like the following as you write more endpoints:
 
@@ -88,3 +88,7 @@ exports.api = functions.https.onRequest(app)
 ```
 
 Just like that, your `/signup`, `/login` and `/user/data` routes will be set up!
+
+**NOTE:** It's also important to understand that Firebase charges it's uses based on the number of reads/writes to the Firestore. The way you structure Firebase apps will be _very_ different from other applications. In this case, repeated data is helpful, since it will decrease the number of rewrites you'll need.
+
+Say for example you have posts, and users in a database. If posts always show the user profile image, attach that to the post document, that way you don't need to query the user and their image every time you display a post!
