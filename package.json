@@ -1,0 +1,13 @@
+{
+  "name": "windsayl-temp",
+  "description": "Temp site for Windsayl",
+  "scripts": {
+    "lint": "eslint .",
+    "temp": "echo \"woot woot\"",
+    "serve": "firebase serve --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  }
+}
