@@ -76,10 +76,15 @@ exports.signUp = catchErrors(
         email: 'Email is already in use'
       })
     }
+    if (err.code === 'auth/weak-password') {
+      return res.status(400).json({
+        password: 'Your password must be at least 6 characters'
+      })
+    }
     console.error(err)
     return res
       .status(500)
-      .json({ error: `(${err.code}) Could not create new user` })
+      .json({ general: `Something went wrong, please try again!` })
   }
 )
 
@@ -101,20 +106,14 @@ exports.login = catchErrors(
     const data = await firebase
       .auth()
       .signInWithEmailAndPassword(user.email, user.password)
-    console.log(JSON.stringify(data.getIdToken))
-    const token = await data.user.getIdToken()
-    return res.json({ token })
+    const userToken = await data.user.getIdToken()
+    return res.json({ userToken })
   },
   (err, req, res) => {
-    if (err.code === 'auth/wrong-password') {
-      return res.status(403).json({
-        general: 'Incorrect password, please try again'
-      })
-    }
     console.error(err)
-    return res
-      .status(500)
-      .json({ error: `(${err.code || '❌'}) Could not login` })
+    return res.status(403).json({
+      general: 'Invalid credentials, please try again'
+    })
   }
 )
 
@@ -160,7 +159,7 @@ exports.getUserPublic = catchErrors(
         waveId: doc.tmpdir
       })
     )
-    res.json({ user, waves })
+    return res.json({ user, waves })
   },
   (err, req, res) => {
     console.error(err)
@@ -177,7 +176,7 @@ exports.getUserPrivate = catchErrors(
     if (!userDoc.exists) {
       return res.status(404).json({ error: '🤷‍♀️ User not found! 🤷‍♂️' })
     }
-    const credentials = userDoc.data()
+    const details = userDoc.data()
     // Get this user's splashes
     const splashDocs = await db
       .collection('splashes')
@@ -205,7 +204,7 @@ exports.getUserPrivate = catchErrors(
       })
     })
     return res.json({
-      credentials,
+      details,
       splashes,
       notifications
     })

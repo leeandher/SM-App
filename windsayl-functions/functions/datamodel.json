@@ -23,6 +23,7 @@
   "ripples": {
     "body": "!string",
     "handle": "!string",
+    "displayPicture": "!string",
     "rippleBody": "!string",
     "rippleHandle": "!string",
     "waveId": "!string"
