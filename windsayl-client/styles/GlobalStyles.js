@@ -6,6 +6,7 @@ const GlobalStyles = createGlobalStyle`
   }
   *, *:before, *:after {
     box-sizing: inherit;
+    font-family: 'Josefin Sans','Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   }
   body {
     padding: 0;

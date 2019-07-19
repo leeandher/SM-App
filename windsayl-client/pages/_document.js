@@ -1,5 +1,5 @@
-import Document, { Head, Main, NextScript } from 'next/document'
-import { ServerStyleSheet } from 'styled-components'
+import Document, { Head, Main, NextScript } from "next/document"
+import { ServerStyleSheet } from "styled-components"
 
 class WindsaylDocument extends Document {
   static getInitialProps({ renderPage }) {
@@ -14,7 +14,7 @@ class WindsaylDocument extends Document {
   render() {
     const { styleTags } = this.props
     return (
-      <html>
+      <html lang="en">
         <Head>{styleTags}</Head>
         <body>
           <Main />
