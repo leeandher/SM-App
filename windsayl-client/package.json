@@ -1,7 +1,7 @@
 {
   "name": "windsayl-client",
   "version": "1.0.0",
-  "description": "Client application for Winsayl",
+  "description": "Client application for Windsayl",
   "main": "index.js",
   "repository": {
     "type": "git",
@@ -19,10 +19,11 @@
     "start": "next start"
   },
   "dependencies": {
-    "lodash": "^4.17.14",
-    "next": "^9.0.1",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6",
-    "styled-components": "^4.3.2"
+    "@material-ui/core": "^4.2.1",
+    "lodash": "4.17.14",
+    "next": "9.0.1",
+    "react": "16.8.6",
+    "react-dom": "16.8.6",
+    "styled-components": "4.3.2"
   }
 }

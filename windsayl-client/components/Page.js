@@ -1,9 +1,12 @@
 import React from 'react'
 import styled, { ThemeProvider } from 'styled-components'
+import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider'
+import createMuiTheme from '@material-ui/core/styles/createMuiTheme'
 
 import Nav from './Nav'
 
 import palette from '../styles/_palette'
+import { themer } from '../styles/helpers'
 
 const PageWrapper = styled.div`
   background: white;
@@ -11,16 +14,18 @@ const PageWrapper = styled.div`
 `
 const ContentWrapper = styled.div`
   max-width: 960px;
-  margin: 0 auto;
+  margin: ${themer('constants.navHeight')} auto 0;
   padding: 2rem;
 `
 
-const Page = () => {
+// const MuiTheme = createMuiTheme
+
+const Page = ({ children }) => {
   return (
     <ThemeProvider theme={palette}>
       <PageWrapper>
         <Nav />
-        <ContentWrapper />
+        <ContentWrapper>{children}</ContentWrapper>
       </PageWrapper>
     </ThemeProvider>
   )
