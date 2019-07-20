@@ -1,2 +1,2 @@
 export const FUNCTIONS_ENDPOINT =
-  "https://us-central1-windsayl.cloudfunctions.net/api"
+  "http://localhost:5000/windsayl/us-central1/api"
