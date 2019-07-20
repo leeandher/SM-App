@@ -1,4 +1,4 @@
-import get from 'lodash/get'
+import get from "lodash/get"
 
 /**
  * Quickly apply theme item through styled-components
